@@ -42,7 +42,7 @@ terraform output floating_ip
 | user | User parameters | object |
 
 ### Description of each variable
-#### instances
+- instances
 ```hcl
 instances = [
     {
@@ -54,7 +54,7 @@ instances = [
 ]
 ```
 
-#### secgroup_rules
+- secgroup_rules
 ```hcl
 secgroup_rules = [
     {
@@ -70,7 +70,7 @@ secgroup_rules = [
 ]
 ```
 
-#### network
+- network
 ```hcl
 network = {
     net_name        = string    # required  <any>            Default( terraform )
@@ -80,7 +80,7 @@ network = {
 }
 ```
 
-#### user
+- user
 ```hcl
 user = {
     name            = string    # required  <any>            Default( terraform )
@@ -128,7 +128,7 @@ user = {
     hashed_password = "$6$wgdfghbfghgf$3P5TkbGDQ8py4xQFVSqKiT.s6BIQ0kGoIk66vZvY/T/Ijr9XZFCRLa7KB7/bslj/IUVETnfdBMrZknpXHgcqF/"
 }
 ```
-- In the [`provider.tf`](provider.tf) file, define the credentials for connecting to openstack. Example:
+- In the [provider.tf](provider.tf) file, define the credentials for connecting to openstack. Example:
 ```hcl
 provider "openstack" {
     insecure          = true
@@ -147,9 +147,9 @@ terraform init
 <br />
 
 ## Requirements
-[`Terraform`](https://releases.hashicorp.com/terraform) >= [`v1.5.4`](https://releases.hashicorp.com/terraform/1.5.4/) <br />
+[Terraform](https://releases.hashicorp.com/terraform) >= [v1.5.4](https://releases.hashicorp.com/terraform/1.5.4/) <br />
 Providers:
-- [`openstack`](https://registry.terraform.io/providers/terraform-provider-openstack/openstack) >= [`3.0.0`](https://registry.terraform.io/providers/terraform-provider-openstack/openstack/3.0.0)
-- [`template`](https://registry.terraform.io/providers/hashicorp/template/latest) >= [`2.2.0`](https://registry.terraform.io/providers/hashicorp/template/2.2.0)
-- [`null`](https://registry.terraform.io/providers/hashicorp/null) >= [`3.2.3`](https://registry.terraform.io/providers/hashicorp/null/3.2.3)
-- [`local`](https://registry.terraform.io/providers/hashicorp/local) >= [`2.5.2`](https://registry.terraform.io/providers/hashicorp/local/2.5.2)
+- [openstack](https://registry.terraform.io/providers/terraform-provider-openstack/openstack) >= [3.0.0](https://registry.terraform.io/providers/terraform-provider-openstack/openstack/3.0.0)
+- [template](https://registry.terraform.io/providers/hashicorp/template/latest) >= [2.2.0](https://registry.terraform.io/providers/hashicorp/template/2.2.0)
+- [null](https://registry.terraform.io/providers/hashicorp/null) >= [3.2.3](https://registry.terraform.io/providers/hashicorp/null/3.2.3)
+- [local](https://registry.terraform.io/providers/hashicorp/local) >= [2.5.2](https://registry.terraform.io/providers/hashicorp/local/2.5.2)
