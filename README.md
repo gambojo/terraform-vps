@@ -1,5 +1,17 @@
 # terraform-vps
 
+## Info
+#### This Terraform configuration will help you quickly deploy any number of different or identical instances by specifying a minimum amount of input data.
+Default username/password `"terraform/terraform123"`<br />
+To display the created private key, use the command:
+```sh
+terraform output --raw private_key
+```
+To display the created floating ip-addresses, use the command:
+```sh
+terraform output floating_ip
+```
+
 ## Variables
 ### General description of variables
 | Name | Description | Type |
@@ -14,10 +26,10 @@
 ```hcl
 instances = [
     {
-        name        = string # required     <any>            Default( terraform-instance )
-        image       = string # optional     <any>            Default( ubuntu-22.04.4 )
-        flavor      = string # optional     <any>            Default( 2-4-10 )
-        volume_size = number # optional     <any>            Default( 10 )
+        name        = string    # required  <any>            Default( terraform-instance )
+        image       = string    # optional  <any>            Default( ubuntu-22.04.4 )
+        flavor      = string    # optional  <any>            Default( 2-4-0 )
+        volume_size = number    # optional  <any>            Default( 10 )
     }
 ]
 ```
@@ -27,12 +39,13 @@ instances = [
 secgroup_rules = [
     {
         port_range = {
-            min = number,   # required      <1-65535>        Default( 22 )
-            max = number    # required      <1-65535>        Default( 22 )
+            min     = number,   # required  <1-65535>        Default( 22 )
+            max     = number    # required  <1-65535>        Default( 22 )
         }
-        protocol  = string  # required      <TCP/UDP/"">     Default( "" )
-        ethertype = string  # optional      <IPv4/IPv6>      Default( IPv4 )
-        direction = string  # optional      <ingress/egress> Default( ingress )
+        protocol    = string    # required  <tcp/udp/"">     Default( "" )
+        ethertype   = string    # required  <IPv4/IPv6>      Default( IPv4 )
+        direction   = string    # optional  <ingress/egress> Default( ingress )
+        prefix      = string    # optional  <0.0.0.0/0>      Default( 0.0.0.0/0 )
     }
 ]
 ```
@@ -40,24 +53,29 @@ secgroup_rules = [
 #### network
 ```hcl
 network = {
-    net_name        = string # required     <any>            Default( terraform )
-    extnet_name     = string # required     <any>            Default( external )
-    cidr_block      = string # optional     <0.0.0.0/0>      Default( 192.168.0.0/24 )
-    dns_nameservers = list   # optional     <["0.0.0.0"]>    Default( ["8.8.8.8"] )
+    net_name        = string    # required  <any>            Default( terraform )
+    extnet_name     = string    # required  <any>            Default( external )
+    cidr_block      = string    # optional  <0.0.0.0/0>      Default( 192.168.0.0/24 )
+    dns_nameservers = list      # optional  <["0.0.0.0"]>    Default( ["8.8.8.8"] )
 }
 ```
 
 #### user
 ```hcl
 user = {
-    name      = string       # required     <any>            Default( terraform )
-    password  = string       # required     <any>            Default( terraform123 )
+    name            = string    # required  <any>            Default( terraform )
+    hashed_password = string    # required  <password hash>  Default( $6$any_salt$hwzTmq... )
 }
 ```
 
 ## Usage
 ### Preparation
 - Create a file called `terraform.tfvars`
+- Convert your password to a hash function.<br />
+  For fast hashing you can use this command:
+```sh
+echo 'your_password' | openssl passwd -6 -salt 'your_salt' -stdin
+```
 - Populate the file with variables to override defaults. Example:
 ```hcl
 instances = [
@@ -69,11 +87,18 @@ instances = [
 secgroup_rules = [
     {
     port_range = { min = 22, max = 22 },
-    protocol   = ""
+    protocol   = "tcp",
+    ethertype  = "IPv4"
     },
     {
     port_range = { min = 80, max = 80 },
-    protocol   = ""
+    protocol   = "tcp",
+    ethertype  = "IPv4"
+    },
+    {
+    port_range = { min = 443, max = 443 },
+    protocol   = "tcp",
+    ethertype  = "IPv4"
     }
 ]
 
@@ -83,8 +108,8 @@ network = {
 }
 
 user = {
-    name     = "user-1",
-    password = "P@s$w0rd321"
+    name            = "user-1",
+    hashed_password = "$6$wgdfghbfghgf$3P5TkbGDQ8py4xQFVSqKiT.s6BIQ0kGoIk66vZvY/T/Ijr9XZFCRLa7KB7/bslj/IUVETnfdBMrZknpXHgcqF/"
 }
 ```
 - In the [`provider.tf`](provider.tf) file, define the credentials for connecting to openstack. Example:
