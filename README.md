@@ -3,6 +3,12 @@
 ## Info
 #### This Terraform configuration will help you quickly deploy any number of different or identical instances by specifying a minimum amount of input data.
 Default username/password `"terraform/terraform123"`<br />
+We strongly recommend that you use your own password, for example for fast hashing you can use this command:
+```sh
+echo 'your_password' | openssl passwd -6 -salt 'your_salt' -stdin
+```
+
+
 To display the created private key, use the command:
 ```sh
 terraform output --raw private_key
@@ -71,11 +77,6 @@ user = {
 ## Usage
 ### Preparation
 - Create a file called `terraform.tfvars`
-- Convert your password to a hash function.<br />
-  For fast hashing you can use this command:
-```sh
-echo 'your_password' | openssl passwd -6 -salt 'your_salt' -stdin
-```
 - Populate the file with variables to override defaults. Example:
 ```hcl
 instances = [
