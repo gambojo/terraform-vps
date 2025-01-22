@@ -1,14 +1,26 @@
 # terraform-vps
 
+## Title
+- [Info](#info)
+  - [Description](#description)
+  - [More](#more)
+- [Variables](#variables)
+  - [General description of variables](#general-description-of-variables)
+  - [Description of each variable](#description-of-each-variable)
+- [Usage](#usage)
+- [Requirements](#requirements)
+---
+<br />
+
 ## Info
-#### This Terraform configuration will help you quickly deploy any number of different or identical instances by specifying a minimum amount of input data.
+#### Description
+This Terraform configuration will help you quickly deploy any number of different or identical instances by specifying a minimum amount of input data.<br />
+#### More
 Default username/password `"terraform/terraform123"`<br />
 We strongly recommend that you use your own password, for example for fast hashing you can use this command:
 ```sh
 echo 'your_password' | openssl passwd -6 -salt 'your_salt' -stdin
 ```
-
-
 To display the created private key, use the command:
 ```sh
 terraform output --raw private_key
@@ -17,6 +29,8 @@ To display the created floating ip-addresses, use the command:
 ```sh
 terraform output floating_ip
 ```
+---
+<br />
 
 ## Variables
 ### General description of variables
@@ -73,9 +87,10 @@ user = {
     hashed_password = string    # required  <password hash>  Default( $6$any_salt$hwzTmq... )
 }
 ```
+---
+<br />
 
 ## Usage
-### Preparation
 - Create a file called `terraform.tfvars`
 - Populate the file with variables to override defaults. Example:
 ```hcl
@@ -128,10 +143,12 @@ provider "openstack" {
 ```hcl
 terraform init
 ```
+---
+<br />
 
 ## Requirements
-### [`Terraform`](https://releases.hashicorp.com/terraform) >= [`v1.5.4`](https://releases.hashicorp.com/terraform/1.5.4/)
-### Providers:
+[`Terraform`](https://releases.hashicorp.com/terraform) >= [`v1.5.4`](https://releases.hashicorp.com/terraform/1.5.4/) <br />
+Providers:
 - [`openstack`](https://registry.terraform.io/providers/terraform-provider-openstack/openstack) >= [`3.0.0`](https://registry.terraform.io/providers/terraform-provider-openstack/openstack/3.0.0)
 - [`template`](https://registry.terraform.io/providers/hashicorp/template/latest) >= [`2.2.0`](https://registry.terraform.io/providers/hashicorp/template/2.2.0)
 - [`null`](https://registry.terraform.io/providers/hashicorp/null) >= [`3.2.3`](https://registry.terraform.io/providers/hashicorp/null/3.2.3)
