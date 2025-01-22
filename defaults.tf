@@ -6,11 +6,12 @@ variable "instances" {
     flavor      = optional(string),
     volume_size = optional(number)
   }))
+
   default = [
     {
       name        = "terraform-instance",
       image       = "ubuntu-22.04.4",
-      flavor      = "2-4-10",
+      flavor      = "2-4-0",
       volume_size = 10
     }
   ]
@@ -24,18 +25,21 @@ variable "secgroup_rules" {
       max = number
     }),
     protocol  = string,
-    ethertype = optional(string),
-    direction = optional(string)
+    ethertype = string,
+    direction = optional(string),
+    prefix    = optional(string)
   }))
+
   default = [
     {
       port_range = {
         min = 22,
         max = 22
       },
+      protocol  = "tcp",
       ethertype = "IPv4",
-      protocol  = "",
-      direction = "ingress"
+      direction = "ingress",
+      prefix    = "0.0.0.0/0"
     }
   ]
 }
@@ -48,6 +52,7 @@ variable "network" {
     cidr_block      = optional(string),
     dns_nameservers = optional(list(string))
   })
+
   default = {
     net_name        = "terraform",
     extnet_name     = "external",
@@ -59,11 +64,12 @@ variable "network" {
 # User parameters
 variable "user" {
   type = object({
-    name      = string,
-    password  = string
+    name            = string,
+    hashed_password = string
   })
+
   default = {
-    name      = "terraform",
-    password  = "terraform123"
+    name            = "terraform",
+    hashed_password = "$6$any_salt$hwzTmqWFVZOgxgMB5LeaFoA2hkb.xujnbNiMQ/50shLK25XrnvdzXtKeh1yn/7Ve9OZ2k1g2fJQ3CJYiYCrf8."
   }
 }
