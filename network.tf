@@ -1,9 +1,9 @@
-# get external network
+# Get external network id
 data "openstack_networking_network_v2" "external_network" {
-  name = var.external_network_name
+  name = var.network.extnet_name
 }
 
-# network
+# Create network
 resource "openstack_networking_network_v2" "network" {
   name           = "${var.network.net_name}_network"
   admin_state_up = "true"
@@ -11,19 +11,19 @@ resource "openstack_networking_network_v2" "network" {
   shared         = "false"
 }
 
-# subnet
+# Create subnet
 resource "openstack_networking_subnet_v2" "subnet" {
   name            = "${var.network.net_name}_subnet"
   network_id      = openstack_networking_network_v2.network.id
-  cidr            = var.network.cidr_block
-  gateway_ip      = var.network.gateway_ip
+  cidr            = coalesce(var.network.cidr_block, "192.168.0.0/24")
+  gateway_ip      = cidrhost(coalesce(var.network.cidr_block, "192.168.0.0/24"), 1)
   ip_version      = 4
   enable_dhcp     = true
-  dns_nameservers = var.network.dns_nameservers
+  dns_nameservers = coalesce(var.network.dns_nameservers, ["8.8.8.8"])
   depends_on      = [openstack_networking_network_v2.network]
 }
 
-# router
+# Create router
 resource "openstack_networking_router_v2" "router" {
   name                = "${var.network.net_name}_router"
   admin_state_up      = true
@@ -31,21 +31,21 @@ resource "openstack_networking_router_v2" "router" {
   depends_on          = [openstack_networking_subnet_v2.subnet]
 }
 
-# router interface
+# Create router interfaces
 resource "openstack_networking_router_interface_v2" "router_interface" {
   router_id  = openstack_networking_router_v2.router.id
   subnet_id  = openstack_networking_subnet_v2.subnet.id
   depends_on = [openstack_networking_router_v2.router]
 }
 
-# fip
+# Create floating ip`s
 resource "openstack_networking_floatingip_v2" "fip" {
   count      = length(var.instances)
-  pool       = var.external_network_name
+  pool       = var.network.extnet_name
   depends_on = [openstack_networking_router_interface_v2.router_interface]
 }
 
-# port
+# Create ports
 resource "openstack_networking_port_v2" "port" {
   count          = length(var.instances)
   name           = var.instances[count.index].name
@@ -54,7 +54,7 @@ resource "openstack_networking_port_v2" "port" {
   depends_on     = [openstack_networking_subnet_v2.subnet]
 }
 
-# fip associate
+# Associate floating ip`s with ports
 resource "openstack_networking_floatingip_associate_v2" "fip_associate" {
   count       = length(var.instances)
   floating_ip = openstack_networking_floatingip_v2.fip[count.index].address
@@ -62,13 +62,11 @@ resource "openstack_networking_floatingip_associate_v2" "fip_associate" {
   depends_on  = [openstack_networking_floatingip_v2.fip]
 }
 
-# port secgroup associate
+# Associate ports with security group
 resource "openstack_networking_port_secgroup_associate_v2" "port_secgroup_associate" {
   count   = length(var.instances)
   port_id = openstack_networking_port_v2.port[count.index].id
   enforce = "true"
-  security_group_ids = [
-    openstack_networking_secgroup_v2.secgroup.id,
-  ]
+  security_group_ids = [openstack_networking_secgroup_v2.secgroup.id]
   depends_on = [openstack_networking_secgroup_rule_v2.secgroup_rules]
 }

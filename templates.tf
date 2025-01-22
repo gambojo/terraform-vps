@@ -1,4 +1,4 @@
-# make hash of user password and save
+# Convert user password to hash and save to temporary file
 resource "null_resource" "save_hash_password" {
   provisioner "local-exec" {
     command = <<EOT
@@ -9,20 +9,20 @@ resource "null_resource" "save_hash_password" {
   }
 }
 
-# check file exists
+# Check for the presence of a file with the user's password hash
 locals {
   file_exists = fileexists(var.user.name) ? true : false
 }
 
-# get saved hash
+# Get the saved hash and put it in a variable
 data "local_file" "get_hash_password" {
   filename = local.file_exists ? "${path.module}/${var.user.name}" : "terraform.tfstate"
   depends_on      = [null_resource.save_hash_password]
 }
 
-# cloud config template file
-data "template_file" "cloud_config" {
-  template = file("${path.module}/cloud-config.tpl")
+# User settings configuration template
+data "template_file" "user_data" {
+  template = file("${path.module}/user_data.tpl")
 
   vars = {
     user_name     = var.user.name
@@ -32,7 +32,7 @@ data "template_file" "cloud_config" {
   depends_on      = [data.local_file.get_hash_password]
 }
 
-# remove saved hash
+# Delete saved hash
 resource "null_resource" "remove_hash_password" {
   provisioner "local-exec" {
     command = <<EOT
@@ -40,5 +40,5 @@ resource "null_resource" "remove_hash_password" {
       rm ${var.user.name}
     EOT
   }
-  depends_on = [data.template_file.cloud_config]
+  depends_on = [data.template_file.user_data]
 }
